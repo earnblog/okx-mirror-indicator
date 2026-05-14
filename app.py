@@ -355,7 +355,7 @@ def build_analysis(main_data, parent_data_list, mirror):
 
     return "<br>".join(lines), box_class
 
-def draw_kline(data):
+def draw_kline(data, display_n=100):
     import plotly.graph_objects as go
     df = data["df"]
     fig = go.Figure()
@@ -375,17 +375,21 @@ def draw_kline(data):
         fig.add_hline(y=r, line_color="#D85A30", line_width=0.8, line_dash="dot",
                       annotation_text=f"R {r:.5g}", annotation_position="right",
                       annotation_font_color="#D85A30", annotation_font_size=10)
+    ts = df["ts"]
+    x_end = ts.iloc[-1]
+    x_start = ts.iloc[max(0, len(ts) - display_n)]
     fig.update_layout(
         paper_bgcolor="#0a0c10", plot_bgcolor="#0d0f14",
         font=dict(color="#aaa", size=11),
-        xaxis=dict(showgrid=True, gridcolor="#1e2230", rangeslider_visible=False),
+        xaxis=dict(showgrid=True, gridcolor="#1e2230", rangeslider_visible=False,
+                   range=[x_start, x_end], fixedrange=False),
         yaxis=dict(showgrid=True, gridcolor="#1e2230", side="right"),
         legend=dict(orientation="h", yanchor="bottom", y=1.01, bgcolor="rgba(0,0,0,0)", font=dict(size=11)),
         margin=dict(l=10, r=90, t=30, b=10), height=300,
     )
     return fig
 
-def draw_macd(data, mirror):
+def draw_macd(data, mirror, display_n=100):
     import plotly.graph_objects as go
     df = data["df"]
     d = (-data["diff"]) if mirror else data["diff"]
@@ -401,17 +405,21 @@ def draw_macd(data, mirror):
         fig.add_annotation(x=0.01, y=0.95, xref="paper", yref="paper", text="🪞 MACD 镜像",
                            showarrow=False, font=dict(color="#378ADD", size=11),
                            bgcolor="#0d1a2a", bordercolor="#378ADD", borderwidth=1, borderpad=4)
+    ts = df["ts"]
+    x_end = ts.iloc[-1]
+    x_start = ts.iloc[max(0, len(ts) - display_n)]
     fig.update_layout(
         paper_bgcolor="#0a0c10", plot_bgcolor="#0d0f14",
         font=dict(color="#aaa", size=11),
-        xaxis=dict(showgrid=True, gridcolor="#1e2230"),
+        xaxis=dict(showgrid=True, gridcolor="#1e2230",
+                   range=[x_start, x_end], fixedrange=False),
         yaxis=dict(showgrid=True, gridcolor="#1e2230", side="right"),
         legend=dict(orientation="h", yanchor="bottom", y=1.01, bgcolor="rgba(0,0,0,0)", font=dict(size=11)),
         margin=dict(l=10, r=90, t=10, b=10), height=160, barmode="relative",
     )
     return fig
 
-def draw_rsi(data, mirror):
+def draw_rsi(data, mirror, display_n=100):
     import plotly.graph_objects as go
     df = data["df"]
     r = (100 - data["rsi"]) if mirror else data["rsi"]
@@ -428,10 +436,14 @@ def draw_rsi(data, mirror):
         fig.add_annotation(x=0.01, y=0.95, xref="paper", yref="paper", text="🪞 RSI 镜像",
                            showarrow=False, font=dict(color="#378ADD", size=11),
                            bgcolor="#0d1a2a", bordercolor="#378ADD", borderwidth=1, borderpad=4)
+    ts = df["ts"]
+    x_end = ts.iloc[-1]
+    x_start = ts.iloc[max(0, len(ts) - display_n)]
     fig.update_layout(
         paper_bgcolor="#0a0c10", plot_bgcolor="#0d0f14",
         font=dict(color="#aaa", size=11),
-        xaxis=dict(showgrid=True, gridcolor="#1e2230"),
+        xaxis=dict(showgrid=True, gridcolor="#1e2230",
+                   range=[x_start, x_end], fixedrange=False),
         yaxis=dict(showgrid=True, gridcolor="#1e2230", side="right", range=[-5, 105]),
         legend=dict(orientation="h", yanchor="bottom", y=1.01, bgcolor="rgba(0,0,0,0)", font=dict(size=11)),
         margin=dict(l=10, r=90, t=10, b=10), height=130,
@@ -455,6 +467,8 @@ with st.sidebar:
     st.markdown("### 🪞 镜像控制")
     macd_mirror = st.toggle("MACD 镜像翻转", value=False)
     rsi_mirror = st.toggle("RSI 镜像翻转", value=False)
+    st.markdown("---")
+    display_n = st.slider("显示K线根数", min_value=50, max_value=200, value=100, step=10)
     st.markdown("---")
     auto_refresh = st.toggle("自动刷新 (15秒)", value=False)
     if st.button("🔄 立即刷新"):
@@ -541,13 +555,13 @@ st.markdown(f'<div class="analysis-box">{analysis_txt}</div>', unsafe_allow_html
 
 # ── Charts ────────────────────────────────────────────────────────────────────
 st.markdown("**K线图** · EMA 20 / 52 / 200 · 支撑阻力（不参与镜像）")
-st.plotly_chart(draw_kline(main_data), use_container_width=True, config={"displayModeBar": False})
+st.plotly_chart(draw_kline(main_data, display_n), use_container_width=True, config={"displayModeBar": False})
 
 st.markdown(f"**MACD {'🪞 镜像' if macd_mirror else '正常'}**")
-st.plotly_chart(draw_macd(main_data, macd_mirror), use_container_width=True, config={"displayModeBar": False})
+st.plotly_chart(draw_macd(main_data, macd_mirror, display_n), use_container_width=True, config={"displayModeBar": False})
 
 st.markdown(f"**RSI {'🪞 镜像' if rsi_mirror else '正常'}**")
-st.plotly_chart(draw_rsi(main_data, rsi_mirror), use_container_width=True, config={"displayModeBar": False})
+st.plotly_chart(draw_rsi(main_data, rsi_mirror, display_n), use_container_width=True, config={"displayModeBar": False})
 
 st.markdown("---")
 st.markdown("<div style='color:#334;font-size:11px;font-family:JetBrains Mono,monospace;text-align:center;padding:8px;'>数据来源：OKX 公开接口 · 仅供学习训练，不构成投资建议</div>", unsafe_allow_html=True)
