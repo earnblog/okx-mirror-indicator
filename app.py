@@ -146,32 +146,54 @@ def get_rsi_state(rsi_val):
 
 def mirror_macd_hint(diff_val, hist_val, dea_val):
     hints = []
-    if diff_val > 0:
-        hints.append("🪞 MACD镜像：DIFF在0轴下方，对应空头趋势")
+
+    # 第一层：现实是什么（用原始未翻转的值判断）
+    if diff_val > 0 and hist_val > 0:
+        reality = "现实：MACD在0轴上方，柱线向上扩张，多头动能仍在增强，上涨还在加速"
+        question = "🪞 镜像在问你：多头已经这么强，你会不会追高过度乐观？历史上这个位置做多，有多少次最终成了套顶？"
+    elif diff_val > 0 and hist_val <= 0:
+        reality = "现实：MACD在0轴上方，但柱线开始收缩，多头动能正在减弱"
+        question = "🪞 镜像在问你：涨势在放缓，你还打算继续持多吗？还是这是一个减仓的窗口？"
+    elif diff_val <= 0 and hist_val < 0:
+        reality = "现实：MACD在0轴下方，柱线向下扩张，空头动能增强，下跌还在加速"
+        question = "🪞 镜像在问你：空头这么强，你是否已经过度悲观？历史上这个位置，有多少次是反弹的起点？"
     else:
-        hints.append("🪞 MACD镜像：DIFF在0轴上方，对应多头趋势")
-    if hist_val > 0:
-        hints.append("柱线翻转后向下，空头动能增强 → 若现实如此，下跌还在加速")
-    else:
-        hints.append("柱线翻转后向上，空头动能衰减 → 若现实如此，下跌可能放缓")
+        reality = "现实：MACD在0轴下方，但柱线开始收缩，空头动能正在衰减"
+        question = "🪞 镜像在问你：跌势在放缓，你还在死守空单吗？还是应该考虑止盈？"
+
+    hints.append(reality)
+    hints.append(question)
+
+    # 第三层：金叉死叉临界
     cross = diff_val - dea_val
-    if abs(cross) < abs(diff_val) * 0.1:
-        hints.append("⚡ 接近金叉/死叉临界点，镜像视角下是反向交叉，留意变盘")
+    if diff_val != 0 and abs(cross) < abs(diff_val) * 0.15:
+        hints.append("⚡ 当前接近金叉/死叉临界点，方向即将明朗，镜像视角下这是你最后确认方向的机会")
+
     return hints
 
 def mirror_rsi_hint(rsi_val):
     mirrored = 100 - rsi_val
     hints = []
-    if mirrored >= 70:
-        hints.append(f"🪞 RSI镜像后 = {mirrored:.1f}（超买区）→ 正常图已是超卖，反弹动能充足")
-    elif mirrored <= 30:
-        hints.append(f"🪞 RSI镜像后 = {mirrored:.1f}（超卖区）→ 正常图已是超买，追多需谨慎")
+
+    # 第一层：现实是什么
+    if rsi_val >= 70:
+        reality = f"现实：RSI = {rsi_val:.1f}，已进入超买区，多头情绪极度亢奋"
+        question = f"🪞 镜像在问你：如果这是超卖区（镜像值={mirrored:.1f}），你会毫不犹豫抄底。那现在超买，你为什么还敢追多？"
+    elif rsi_val <= 30:
+        reality = f"现实：RSI = {rsi_val:.1f}，已进入超卖区，空头情绪极度亢奋"
+        question = f"🪞 镜像在问你：如果这是超买区（镜像值={mirrored:.1f}），你会果断做空。那现在超卖，空头是否已经过度？"
+    elif rsi_val >= 60:
+        reality = f"现实：RSI = {rsi_val:.1f}，偏强区间，多头占优但尚未极端"
+        question = f"🪞 镜像在问你：镜像值={mirrored:.1f}，对应偏弱区间。如果是空头偏弱，你会怎么操作？现在的多头偏强，逻辑是一样的"
+    elif rsi_val <= 40:
+        reality = f"现实：RSI = {rsi_val:.1f}，偏弱区间，空头占优但尚未极端"
+        question = f"🪞 镜像在问你：镜像值={mirrored:.1f}，对应偏强区间。如果是多头偏强，你会怎么操作？现在的空头偏弱，逻辑是一样的"
     else:
-        hints.append(f"🪞 RSI镜像后 = {mirrored:.1f}，镜像视角中性区间")
-    if rsi_val > 70:
-        hints.append("当前多头极度亢奋，镜像下你会犹豫做空吗？这就是多头该有的反思")
-    elif rsi_val < 30:
-        hints.append("当前空头极度亢奋，镜像下对应超买，问问自己：空头是否已过度")
+        reality = f"现实：RSI = {rsi_val:.1f}，中性区间，多空均衡"
+        question = "🪞 镜像在问你：中性区间多空都没有明显优势，你的方向判断依据是什么？指标以外还有什么支撑你的逻辑？"
+
+    hints.append(reality)
+    hints.append(question)
     return hints
 
 # ── Chart drawing with Plotly ─────────────────────────────────────────────────
