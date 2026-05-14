@@ -555,13 +555,13 @@ st.markdown(f'<div class="analysis-box">{analysis_txt}</div>', unsafe_allow_html
 
 # ── Charts ────────────────────────────────────────────────────────────────────
 st.markdown("**K线图** · EMA 20 / 52 / 200 · 支撑阻力（不参与镜像）")
-st.plotly_chart(draw_kline(main_data, display_n), use_container_width=True, config={"displayModeBar": False})
+st.plotly_chart(draw_kline(main_data, display_n), use_container_width=True, config={"displayModeBar": False, "scrollZoom": True})
 
 st.markdown(f"**MACD {'🪞 镜像' if macd_mirror else '正常'}**")
-st.plotly_chart(draw_macd(main_data, macd_mirror, display_n), use_container_width=True, config={"displayModeBar": False})
+st.plotly_chart(draw_macd(main_data, macd_mirror, display_n), use_container_width=True, config={"displayModeBar": False, "scrollZoom": True})
 
 st.markdown(f"**RSI {'🪞 镜像' if rsi_mirror else '正常'}**")
-st.plotly_chart(draw_rsi(main_data, rsi_mirror, display_n), use_container_width=True, config={"displayModeBar": False})
+st.plotly_chart(draw_rsi(main_data, rsi_mirror, display_n), use_container_width=True, config={"displayModeBar": False, "scrollZoom": True})
 
 st.markdown("---")
 st.markdown("<div style='color:#334;font-size:11px;font-family:JetBrains Mono,monospace;text-align:center;padding:8px;'>数据来源：OKX 公开接口 · 仅供学习训练，不构成投资建议</div>", unsafe_allow_html=True)
