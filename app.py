@@ -415,7 +415,7 @@ def draw_macd(data, mirror, display_n=100):
                    range=[x_start, x_end], fixedrange=False),
         yaxis=dict(showgrid=True, gridcolor="#1e2230", side="right"),
         legend=dict(orientation="h", yanchor="bottom", y=1.01, bgcolor="rgba(0,0,0,0)", font=dict(size=11)),
-        margin=dict(l=10, r=90, t=10, b=10), height=160, barmode="relative",
+        margin=dict(l=10, r=90, t=10, b=10), height=340, barmode="relative",
     )
     return fig
 
@@ -560,8 +560,7 @@ st.plotly_chart(draw_kline(main_data, display_n), use_container_width=True, conf
 st.markdown(f"**MACD {'🪞 镜像' if macd_mirror else '正常'}**")
 st.plotly_chart(draw_macd(main_data, macd_mirror, display_n), use_container_width=True, config={"displayModeBar": False, "scrollZoom": True})
 
-st.markdown(f"**RSI {'🪞 镜像' if rsi_mirror else '正常'}**")
-st.plotly_chart(draw_rsi(main_data, rsi_mirror, display_n), use_container_width=True, config={"displayModeBar": False, "scrollZoom": True})
+
 
 st.markdown("---")
 st.markdown("<div style='color:#334;font-size:11px;font-family:JetBrains Mono,monospace;text-align:center;padding:8px;'>数据来源：OKX 公开接口 · 仅供学习训练，不构成投资建议</div>", unsafe_allow_html=True)
