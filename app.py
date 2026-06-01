@@ -160,7 +160,7 @@ def draw_macd(df, diff, dea, hist, mirror, display_n, height=260):
             x=0.01, y=0.97, xref="paper", yref="paper",
             text="🪞 镜像", showarrow=False,
             font=dict(color="#378ADD", size=11),
-            bgcolor="#0d1a2a", bordercolor="#378ADD44",
+            bgcolor="#0d1a2a", bordercolor="rgba(55,138,221,0.27)",
             borderwidth=1, borderpad=4,
         )
 
